@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>ChatApp Login</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      background-color: #000;
+      color: #fff;
+      font-family: 'Helvetica Neue', sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+    .container {
+      background-color: #121212;
+      padding: 40px;
+      border-radius: 10px;
+      width: 90%;
+      max-width: 400px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      box-shadow: 0 0 10px rgba(255, 255, 255, 0.05);
+    }
+    .logo {
+      width: 100px;
+      height: 100px;
+      margin-bottom: 20px;
+      object-fit: contain;
+    }
+    .app-name {
+      font-size: 28px;
+      font-weight: 600;
+      margin-bottom: 30px;
+    }
+    .input {
+      width: 100%;
+      padding: 12px;
+      margin-bottom: 15px;
+      border: none;
+      border-radius: 5px;
+      background-color: #2a2a2a;
+      color: white;
+      font-size: 14px;
+    }
+    .input::placeholder {
+      color: #bbb;
+    }
+    .login-btn {
+      width: 100%;
+      padding: 12px;
+      background-color: #3897f0;
+      border: none;
+      border-radius: 5px;
+      color: white;
+      font-weight: bold;
+      font-size: 14px;
+      cursor: pointer;
+    }
+    .login-btn:hover {
+      background-color: #3182ce;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <img src="image.png" alt="ChatApp Logo" class="logo" id="imgsrc" />
+    <h1 class="app-name">ChatApp</h1>
+    <input type="text" placeholder="Enter your username" id="username" class="input" />
+    <input type="password" placeholder="Enter your password" id="password" class="input" />
+    <button id="login-btn" class="login-btn" onclick="handleLogin()">Login</button>
+  </div>
+
+  <script>
+    const user = params.get("user");
+const target = params.get("target");
+
+// Shared chatroom ID (ensures same chatroom no matter the order)
+const chatroomID = [user, target].sort().join("_");
+
+// Firebase path
+const chatRef = ref(db, `chatrooms/${chatroomID}`);
+
+    function isValidPassword(password) {
+      const minLength = 6;
+      const hasLetters = /[a-zA-Z]/.test(password);
+      const hasNumbers = /[0-9]/.test(password);
+      return password.length >= minLength && hasLetters && hasNumbers;
+    }
+
+    function handleLogin() {
+      let username = document.getElementById("username").value;
+      let password = document.getElementById("password").value;
+
+      if (!username) {
+        alert("Please enter a username.");
+        return;
+      }
+
+      if (!isValidPassword(password)) {
+        alert("Password must be at least 6 characters long and include letters and numbers.");
+        return;
+      }
+
+      let imgsrc = document.getElementById("imgsrc").src;
+      openhome(username, imgsrc,password);
+    }
+
+    function openhome(username, imgsrc, password) {
+  const encodedName = encodeURIComponent(username);
+  const encodedImg = encodeURIComponent(imgsrc);
+  const encodedPass = encodeURIComponent(password);
+  window.location.href = `nuber.html?username=${encodedName}&img=${encodedImg}&pass=${encodedPass}`;
+}
+
+  
+  </script>
+  
+</body>
+</html>

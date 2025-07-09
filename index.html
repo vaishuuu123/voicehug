@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>SpeakEase – Circular Intro</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Helvetica Neue', sans-serif;
+    }
+
+    body {
+  background: radial-gradient(circle at 20% 20%, #24004c, #0d0024, #000);
+  min-height: 100vh;
+  overflow-x: hidden; /* allows vertical scroll if needed */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: white;
+  padding: 20px; /* optional spacing */
+}
+
+    .container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 24px;
+      z-index: 2;
+      padding: 20px;
+    }
+
+    @media (min-width: 768px) {
+      .container {
+        flex-direction: row;
+        align-items: center;
+        justify-content: center;
+        gap: 60px;
+      }
+    }
+
+    .slider {
+      position: relative;
+      width: 300px;
+      height: 300px;
+      overflow: hidden;
+      border-radius: 50%;
+      background: rgba(0,0,0,0.7);
+      backdrop-filter: blur(4px);
+      box-shadow: 0 0 25px rgba(0,230,255,0.4),
+                  0 0 40px rgba(163,108,255,0.3),
+                  inset 0 0 10px rgba(255,255,255,0.05);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .slide {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      gap: 16px;
+      padding: 20px;
+      text-align: center;
+      opacity: 0;
+      transform: scale(0.95);
+      transition: opacity .8s ease, transform .8s ease;
+    }
+
+    .slide.active {
+      opacity: 1;
+      transform: scale(1);
+    }
+
+    .avatars {
+      display: flex;
+      gap: 24px;
+      align-items: center;
+    }
+
+    .avatars img {
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 2px solid #00e6ff;
+      box-shadow: 0 0 10px rgba(0,230,255,.5);
+    }
+
+    .chat {
+      background: rgba(255, 255, 255, 0.05);
+      padding: 10px 14px;
+      border-radius: 18px;
+      max-width: 80%;
+      font-size: 0.95rem;
+      line-height: 1.35;
+      box-shadow: 0 2px 6px rgba(0,0,0,.5);
+    }
+
+    .chat.right {
+      align-self: flex-end;
+      background: #4e34ff;
+    }
+
+    .voice {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 1.1rem;
+    }
+
+    .voice svg {
+      width: 36px;
+      height: 36px;
+      animation: pulse 1.6s infinite;
+      fill: #00e6ff;
+    }
+
+    @keyframes pulse {
+      0% {transform: scale(.9); opacity: .7;}
+      50% {transform: scale(1.1); opacity: 1;}
+      100% {transform: scale(.9); opacity: .7;}
+    }
+
+    .logo {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .logo img {
+      width: 100px;
+      animation: pop .7s ease-out forwards;
+      opacity: 0;
+      transform: scale(0);
+    }
+
+    @keyframes pop {
+      to {opacity: 1; transform: scale(1);}
+    }
+
+    .cta {
+      font-weight: 600;
+      font-size: 1.1rem;
+      background: linear-gradient(90deg, #00e6ff, #a36cff, #f46737);
+      background-clip: text;
+      -webkit-background-clip: text;
+      color: transparent;
+      -webkit-text-fill-color: transparent;
+      animation: glowText 5s ease infinite;
+    }
+
+    @keyframes glowText {
+      0%, 100% { filter: drop-shadow(0 0 1px #00e6ff); }
+      50% { filter: drop-shadow(0 0 4px #a36cff); }
+    }
+
+    .note {
+      font-size: .75rem;
+      color: #aaa;
+      opacity: 0.7;
+    }
+
+    .intro-content {
+      text-align: center;
+      max-width: 300px;
+    }
+
+    @media (min-width: 768px) {
+      .intro-content {
+        text-align: left;
+        max-width: 340px;
+      }
+    }
+
+    .title {
+      font-size: 28px;
+      font-weight: bold;
+      background: linear-gradient(90deg, #00e6ff, #a36cff, #f46737);
+      background-clip: text;
+      -webkit-background-clip: text;
+      color: transparent;
+      -webkit-text-fill-color: transparent;
+      animation: glowText 5s ease infinite;
+    }
+
+    .subtitle {
+      margin-top: 10px;
+      font-size: 16px;
+      color: #ccc;
+    }
+
+    .enter-btn {
+      margin-top: 20px;
+      padding: 10px 22px;
+      font-size: 15px;
+      font-weight: bold;
+      border: none;
+      border-radius: 28px;
+      color: white;
+      background: linear-gradient(90deg, #4e34ff, #009eff);
+      box-shadow: 0 0 10px rgba(0, 136, 255, 0.3);
+      cursor: pointer;
+      transition: transform 0.2s;
+    }
+
+    .enter-btn:hover {
+      transform: scale(1.05);
+    }
+
+    video.bg-video {
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      opacity: 0.07;
+      z-index: 0;
+      pointer-events: none;
+    }
+  </style>
+</head>
+<body>
+  <!-- Background Video -->
+  <video class="bg-video" autoplay muted loop>
+    <source src="https://cdn.glitch.global/139b9be5-34eb-430f-a97a-8bc34bfda987/stars.mp4?v=1751669000000" type="video/mp4">
+  </video>
+
+  <div class="container">
+    <!-- Circular slider (Intro Panel) -->
+    <div class="slider">
+      <section class="slide" id="slide1">
+        <div class="avatars">
+          <img src="user1.jpg" alt="User 1"/>
+          <img src="user2.jpg" alt="User 2"/>
+        </div>
+        <div class="chat right">¿Cómo estás?</div>
+      </section>
+
+      <section class="slide" id="slide2">
+        <div class="chat">I'm good, thanks!</div>
+        <div class="chat right">¡Estoy bien, gracias!</div>
+      </section>
+
+      <section class="slide" id="slide3">
+        <div class="voice">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <path d="M12 2a3 3 0 0 0-3 3v6a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Zm5 9a5 5 0 0 1-10 0H5a7 7 0 0 0 14 0h-2Z"/>
+            <path d="M19 11h2a9 9 0 0 1-18 0h2a7 7 0 0 0 14 0Z"/>
+          </svg>
+          <span>🔊 "I'm good, thanks!"</span>
+        </div>
+        <span class="note">Spoken aloud with Google Utterance</span>
+      </section>
+
+      <section class="slide" id="slide4">
+        <div class="logo">
+          <img src="https://cdn.glitch.global/139b9be5-34eb-430f-a97a-8bc34bfda987/image.png?v=1751667333298" alt="SpeakEase Logo"/>
+          <h2>SpeakEase</h2>
+        </div>
+        <div class="cta">Break language barriers.</div>
+      </section>
+    </div>
+
+    <!-- Intro Content -->
+    <div class="intro-content">
+      <h1 class="title">Welcome to ChatApp</h1>
+      <p class="subtitle">Translate. Talk. Connect. All in your language.</p>
+      <button class="enter-btn" onclick="enterApp()">Enter App</button>
+    </div>
+  </div>
+
+  <script>
+    const slides = document.querySelectorAll('.slide');
+    let idx = 0;
+    let spoken = false;
+
+    function show() {
+      slides.forEach((s, i) => s.classList.toggle('active', i === idx));
+      if (idx === 2 && !spoken) {
+        const utter = new SpeechSynthesisUtterance("I'm good, thanks!");
+        utter.lang = 'en-US';
+        speechSynthesis.speak(utter);
+        spoken = true;
+      }
+      idx = (idx + 1) % slides.length;
+    }
+
+    show();
+    setInterval(show, 2500);
+
+    function enterApp() {
+      window.location.href = "login.html"; // Update path as needed
+    }
+  </script>
+</body>
+</html>

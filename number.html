@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>OTP Login</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Helvetica Neue', sans-serif;
+      background: radial-gradient(circle at 20% 20%, #24004c 0%, #19003a 35%, #0d0024 70%, #000 100%);
+      color: #ffffff;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      padding: 20px;
+      overflow: hidden;
+    }
+
+    .container {
+      background: rgba(0, 0, 0, 0.7);
+      padding: 30px;
+      border-radius: 30px;
+      width: 100%;
+      max-width: 360px;
+      text-align: center;
+      box-shadow: 0 0 25px rgba(0,230,255,0.4),
+                  0 0 40px rgba(163,108,255,0.3),
+                  inset 0 0 10px rgba(255,255,255,0.05);
+      z-index: 1;
+    }
+
+    h3 {
+      font-size: 26px;
+      margin-bottom: 20px;
+      background: linear-gradient(90deg,#0099e6,#4c28ff,#7f1dff);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      animation: glowText 6s ease-in-out infinite;
+    }
+
+    @keyframes glowText {
+      0%, 100% { filter: drop-shadow(0 0 1px #4c28ff); }
+      50% { filter: drop-shadow(0 0 4px #0099e6); }
+    }
+
+    select, input, button {
+      width: 100%;
+      padding: 12px;
+      margin-top: 12px;
+      border-radius: 8px;
+      border: 1px solid rgba(0, 136, 255, 0.35);
+      background-color: #2a2a2a;
+      color: #fff;
+      font-size: 14px;
+      transition: background 0.25s ease, transform 0.2s ease;
+    }
+
+    input:focus, select:focus {
+      outline: none;
+      background: #333;
+      border-color: #0099e6;
+    }
+
+    button {
+      background: linear-gradient(135deg, #3722ff 0%, #0088ff 100%);
+      font-weight: 600;
+      cursor: pointer;
+      box-shadow: 0 0 8px rgba(0,136,255,.25);
+    }
+
+    button:hover {
+      background: linear-gradient(135deg, #4e34ff 0%, #009eff 100%);
+      transform: translateY(-2px);
+    }
+
+    #overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.95);
+      z-index: 1000;
+      display: none;
+    }
+
+    #otpSection {
+      display: none;
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: rgba(0,0,0,0.85);
+      width: 100%;
+      max-width: 320px;
+      padding: 24px;
+      border-radius: 20px;
+      text-align: center;
+      z-index: 1100;
+      box-shadow: 0 0 30px rgba(0,136,255,0.3);
+    }
+
+    #otpSection input, #otpSection button {
+      margin-top: 10px;
+    }
+
+    @media (max-width: 480px) {
+      .container {
+        padding: 24px 18px;
+      }
+
+      input, select, button {
+        font-size: 13px;
+        padding: 10px;
+      }
+
+      #otpSection {
+        width: 90%;
+        padding: 18px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h3>OTP Login</h3>
+    <select id="languageDropdown">
+      <option disabled selected>Select language...</option>
+    </select>
+    <input id="phone" type="tel" placeholder="+911234567890" />
+    <div id="recaptcha-container"></div>
+    <button id="sendBtn">Send OTP</button>
+  </div>
+
+  <div id="overlay"></div>
+
+  <div id="otpSection">
+    <input type="text" id="otpInput" placeholder="Enter OTP" />
+    <button id="verifyBtn">Login</button>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-app.js";
+    import { getAuth } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-auth.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyDMZ0MT8y8cRgPt9NzuwKFpO5aHKQbd3Qg",
+      authDomain: "voicehug-a4288.firebaseapp.com",
+      databaseURL: "https://voicehug-a4288-default-rtdb.firebaseio.com",
+      projectId: "voicehug-a4288",
+      storageBucket: "voicehug-a4288.appspot.com",
+      messagingSenderId: "260260741861",
+      appId: "1:260260741861:web:761faf41b662f37fcc4a0c",
+      measurementId: "G-GPEMZRG7XN"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+
+    const languageMap = {
+  "en": "English",
+  "af": "Afrikaans", "sq": "Albanian", "am": "Amharic", "ar": "Arabic", "hy": "Armenian",
+  "az": "Azerbaijani", "eu": "Basque", "be": "Belarusian", "bn": "Bengali", "bs": "Bosnian",
+  "bg": "Bulgarian", "ca": "Catalan", "ceb": "Cebuano", "zh-CN": "Chinese (Simplified)",
+  "zh-TW": "Chinese (Traditional)", "co": "Corsican", "hr": "Croatian", "cs": "Czech",
+  "da": "Danish", "nl": "Dutch", "eo": "Esperanto", "et": "Estonian", "fi": "Finnish",
+  "fr": "French", "fy": "Frisian", "gl": "Galician", "ka": "Georgian", "de": "German",
+  "el": "Greek", "gu": "Gujarati", "ht": "Haitian Creole", "ha": "Hausa", "haw": "Hawaiian",
+  "he": "Hebrew", "hi": "Hindi", "hmn": "Hmong", "hu": "Hungarian", "is": "Icelandic",
+  "ig": "Igbo", "id": "Indonesian", "ga": "Irish", "it": "Italian", "ja": "Japanese",
+  "jv": "Javanese", "kn": "Kannada", "kk": "Kazakh", "km": "Khmer", "rw": "Kinyarwanda",
+  "ko": "Korean", "ku": "Kurdish", "ky": "Kyrgyz", "lo": "Lao", "la": "Latin", "lv": "Latvian",
+  "lt": "Lithuanian", "lb": "Luxembourgish", "mk": "Macedonian", "mg": "Malagasy", "ms": "Malay",
+  "ml": "Malayalam", "mt": "Maltese", "mi": "Maori", "mr": "Marathi", "mn": "Mongolian",
+  "my": "Myanmar (Burmese)", "ne": "Nepali", "no": "Norwegian", "ny": "Nyanja (Chichewa)",
+  "or": "Odia (Oriya)", "ps": "Pashto", "fa": "Persian", "pl": "Polish", "pt": "Portuguese",
+  "pa": "Punjabi", "ro": "Romanian", "ru": "Russian", "sm": "Samoan", "gd": "Scots Gaelic",
+  "sr": "Serbian", "st": "Sesotho", "sn": "Shona", "sd": "Sindhi", "si": "Sinhala",
+  "sk": "Slovak", "sl": "Slovenian", "so": "Somali", "es": "Spanish", "su": "Sundanese",
+  "sw": "Swahili", "sv": "Swedish", "tl": "Tagalog (Filipino)", "tg": "Tajik", "ta": "Tamil",
+  "tt": "Tatar", "te": "Telugu", "th": "Thai", "tr": "Turkish", "tk": "Turkmen", "uk": "Ukrainian",
+  "ur": "Urdu", "ug": "Uyghur", "uz": "Uzbek", "vi": "Vietnamese", "cy": "Welsh", "xh": "Xhosa",
+  "yi": "Yiddish", "yo": "Yoruba", "zu": "Zulu"
+};
+
+
+    window.addEventListener("DOMContentLoaded", () => {
+      const dropdown = document.getElementById("languageDropdown");
+      for (const [code, name] of Object.entries(languageMap)) {
+        const option = document.createElement("option");
+        option.value = code;
+        option.textContent = name;
+        dropdown.appendChild(option);
+      }
+    });
+
+    document.getElementById("sendBtn").addEventListener("click", () => {
+      const phone = document.getElementById("phone").value.trim();
+      if (!phone.match(/^\+\d{10,15}$/)) {
+        alert("Enter a valid phone number (e.g. +911234567890)");
+        return;
+      }
+
+      // Show overlay and OTP popup
+      document.getElementById("overlay").style.display = "block";
+      document.getElementById("otpSection").style.display = "block";
+
+      alert("✅ OTP sent to " + phone + " (simulated)");
+    });
+
+    document.getElementById("verifyBtn").addEventListener("click", () => {
+      const phone = document.getElementById("phone").value.trim();
+      const otp = document.getElementById("otpInput").value.trim();
+      const language = document.getElementById("languageDropdown").value;
+
+      if (!otp) {
+        alert("Please enter OTP");
+        return;
+      }
+
+      if (!language) {
+        alert("Please select a language");
+        return;
+      }
+
+      const params = new URLSearchParams(window.location.search);
+      const username = params.get('username') || 'Guest';
+      const imgsrc = params.get("imgsrc") || "https://cdn.glitch.global/139b9be5-34eb-430f-a97a-8bc34bfda987/default.jpg?v=1751670678506";
+      const pass = params.get('pass') || '';
+
+      window.location.href = `image.html?username=${encodeURIComponent(username)}&imgsrc=${encodeURIComponent(imgsrc)}&phone=${encodeURIComponent(phone)}&pass=${encodeURIComponent(pass)}&language=${encodeURIComponent(language)}`;
+    });
+  </script>
+
+</body>
+</html>

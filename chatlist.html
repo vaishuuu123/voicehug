@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>User List</title>
+  <style>
+    html, body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background: radial-gradient(circle at 20% 20%, #24004c 0%, #19003a 35%, #0d0024 70%, #000 100%);
+      height: 100%;
+      color: white;
+      display: flex;
+      flex-direction: column;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background-color: #0d0024;
+      padding: 10px 15px;
+      height: 60px;
+      color: white;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+    }
+
+    .logo {
+      font-weight: bold;
+      font-size: 20px;
+      background: linear-gradient(90deg,#00caff,#7f1dff);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      animation: glowText 6s ease-in-out infinite;
+    }
+
+    @keyframes glowText {
+      0%, 100% { filter: drop-shadow(0 0 1px #4c28ff); }
+      50% { filter: drop-shadow(0 0 4px #0099e6); }
+    }
+
+    .setting-btn {
+      background: none;
+      border: none;
+      font-size: 24px;
+      cursor: pointer;
+      color: white;
+    }
+
+    #searchBox {
+      padding: 10px 15px;
+    }
+
+    #searchInput {
+      width: 100%;
+      padding: 10px;
+      font-size: 16px;
+      border-radius: 20px;
+      border: 1px solid #444;
+      background-color: #1a1a2e;
+      color: white;
+      outline: none;
+    }
+
+    #userList {
+      flex-grow: 1;
+      overflow-y: auto;
+      padding: 10px;
+    }
+
+    .user-card {
+      background: #1f1f38;
+      padding: 10px;
+      margin: 10px;
+      border-radius: 8px;
+      box-shadow: 0 0 8px rgba(0, 230, 255, 0.15);
+      cursor: pointer;
+      width: 100%;
+      max-width: 100%;
+      color: white;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+            font-size: 16px;
+
+    }
+
+    .user-card:hover {
+      transform: scale(1.02);
+      box-shadow: 0 0 15px rgba(0, 230, 255, 0.4);
+    }
+
+    .user-card img {
+      width: 60px;
+      height: 60px;
+      object-fit: cover;
+      border-radius: 50%;
+      margin-bottom: 5px;
+    }
+
+    .user-info {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .username {
+      font-size: 16px;
+    }
+
+    #addUserBtn {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background-color: #00caff;
+      color: black;
+      border: none;
+      border-radius: 50%;
+      font-size: 28px;
+      width: 50px;
+      height: 50px;
+      cursor: pointer;
+      box-shadow: 0 4px 10px rgba(0, 230, 255, 0.5);
+      transition: transform 0.2s ease;
+    }
+
+    #addUserBtn:hover {
+      transform: scale(1.1);
+    }
+    .settings-menu {
+      position: absolute;
+      top: 60px;
+      right: 10px;
+      background: #1f1f38;
+      border: 1px solid #444;
+      border-radius: 8px;
+      padding: 10px;
+      box-shadow: 0 0 10px rgba(0, 230, 255, 0.3);
+      display: none;
+      z-index: 10;
+    }
+
+    .settings-menu button {
+      background: none;
+      border: none;
+      color: white;
+      padding: 8px 12px;
+      width: 100%;
+      text-align: left;
+      cursor: pointer;
+    }
+
+    .settings-menu button:hover {
+      background-color: #333;
+    }
+  </style>
+</head>
+<body>
+
+  <nav>
+    <p class="logo">SpeackEase</p>
+    <button class="setting-btn" id="setting-btn">⋮</button>
+    <div class="settings-menu" id="settings-menu">
+      <button id="editProfileBtn">Edit Profile</button>
+    </div>
+  </nav>
+
+  <div id="searchBox">
+    <input type="text" id="searchInput" placeholder="Search user..." />
+  </div>
+
+  <div id="userList"></div>
+  <button id="addUserBtn">＋</button>
+
+ <script>
+  const params = new URLSearchParams(window.location.search);
+const currentUser = params.get('username');
+const target = params.get('target');
+const targetimg = params.get('targetimg');
+const targetphone = params.get('targetphone');
+const targetlanguage = params.get('targetlanguage') || 'en';
+
+const pass = params.get('pass');
+const userimgsrc = params.get('imgsrc');
+const userphone = params.get('phone');
+const userlanguage = params.get('language') || 'en';
+
+let users = JSON.parse(localStorage.getItem('users')) || [];
+
+// ✅ Push target user if not already stored
+if (target && targetphone && !users.some(user => user.phone === targetphone)) {
+  users.push({
+    username: target,
+    imgsrc: targetimg || 'default.jpg',
+    phone: targetphone,
+    language: targetlanguage
+  });
+  localStorage.setItem('users', JSON.stringify(users));
+}
+
+// Add a default user if none exist
+if (users.length === 0) {
+  users.push({
+    username: "Test User",
+    imgsrc: "default.jpg",
+    phone: "+910000000000",
+    language: "en"
+  });
+  localStorage.setItem('users', JSON.stringify(users));
+}
+
+const userListDiv = document.getElementById('userList');
+
+function displayUsers(filteredUsers) {
+  userListDiv.innerHTML = '';
+
+  if (filteredUsers.length === 0) {
+    userListDiv.innerHTML = "<p style='padding: 10px;'>No users found.</p>";
+    return;
+  }
+
+  filteredUsers.forEach(user => {
+    const div = document.createElement('div');
+    div.className = "user-card";
+    div.innerHTML = `
+      <div class="user-info">
+        <img src="${user.imgsrc}" onerror="this.src='default.jpg';" />
+        <div class="username">
+          <strong>${user.username}</strong><br/>
+        </div>
+      </div>
+    `;
+    div.onclick = () => {
+      const userLanguage = user.language || 'en';
+
+      localStorage.setItem('targetUser', JSON.stringify({
+        username: user.username,
+        imgsrc: user.imgsrc,
+        phone: user.phone,
+        language: userLanguage
+      }));
+
+      const url = `chatbox.html?username=${encodeURIComponent(currentUser)}` +
+                  `&imgsrc=${encodeURIComponent(userimgsrc)}` +
+                  `&phone=${encodeURIComponent(userphone)}` +
+                  `&pass=${encodeURIComponent(pass)}` +
+                  `&language=${encodeURIComponent(userlanguage)}` +
+                  `&target=${encodeURIComponent(user.username)}` +
+                  `&targetimg=${encodeURIComponent(user.imgsrc)}` +
+                  `&targetphone=${encodeURIComponent(user.phone)}` +
+                  `&targetlanguage=${encodeURIComponent(userLanguage)}`;
+      window.location.href = url;
+    };
+
+    userListDiv.appendChild(div);
+  });
+}
+
+// ✅ Filter out the current user (by phone)
+const visibleUsers = users.filter(user => user.phone !== userphone);
+visibleUsers.sort((a, b) => a.username.localeCompare(b.username));
+displayUsers(visibleUsers);
+
+// Search functionality
+document.getElementById("searchInput").addEventListener("input", function () {
+  const query = this.value.toLowerCase().trim();
+  const filtered = visibleUsers.filter(user =>
+    user.username.toLowerCase().includes(query)
+  );
+  displayUsers(filtered);
+});
+
+// Add user button handler
+document.getElementById('addUserBtn').addEventListener('click', () => {
+  const url = `addlist.html?username=${encodeURIComponent(currentUser)}` +
+              `&phone=${encodeURIComponent(userphone)}` +
+              `&pass=${encodeURIComponent(pass)}` +
+              `&language=${encodeURIComponent(userlanguage)}`;
+  window.location.href = url;
+});
+ // Show/hide settings menu
+    const settingBtn = document.getElementById("setting-btn");
+    const settingsMenu = document.getElementById("settings-menu");
+
+    settingBtn.addEventListener("click", () => {
+      settingsMenu.style.display = settingsMenu.style.display === "block" ? "none" : "block";
+    });
+
+    // Redirect to settings page
+    document.getElementById("editProfileBtn").addEventListener("click", () => {
+      const url = `setting.html?username=${encodeURIComponent(currentUser)}` +
+                  `&phone=${encodeURIComponent(userphone)}` +
+                  `&pass=${encodeURIComponent(pass)}` +
+                  `&imgsrc=${encodeURIComponent(userimgsrc)}` +
+                  `&language=${encodeURIComponent(userlanguage)}`;
+      window.location.href = url;
+    });
+
+    // Hide settings menu if clicked outside
+    document.addEventListener("click", function (e) {
+      if (!settingsMenu.contains(e.target) && !settingBtn.contains(e.target)) {
+        settingsMenu.style.display = "none";
+      }
+    });
+</script>
+</body>
+</html>

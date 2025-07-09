@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Choose Profile Photo</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Helvetica Neue', sans-serif;
+      background: radial-gradient(circle at 20% 20%, #24004c 0%, #19003a 35%, #0d0024 70%, #000 100%);
+      color: white;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 30px 20px;
+      min-height: 100vh;
+    }
+
+    h1 {
+      font-size: 28px;
+      margin-bottom: 30px;
+      background: linear-gradient(90deg,#0099e6,#4c28ff,#7f1dff);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      animation: glowText 6s ease-in-out infinite;
+    }
+
+    @keyframes glowText {
+      0%, 100% { filter: drop-shadow(0 0 1px #4c28ff); }
+      50% { filter: drop-shadow(0 0 4px #0099e6); }
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+      gap: 18px;
+      width: 100%;
+      max-width: 700px;
+    }
+
+    .grid img {
+      width: 100%;
+      aspect-ratio: 1 / 1;
+      object-fit: cover;
+      border-radius: 16px;
+      cursor: pointer;
+      border: 3px solid transparent;
+      box-shadow: 0 0 8px rgba(0, 230, 255, 0.15);
+      transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.3s;
+    }
+
+    .grid img:hover {
+      transform: scale(1.05);
+      box-shadow: 0 0 18px rgba(0, 136, 255, 0.4);
+    }
+
+    .grid img.selected {
+      border-color: #00d0ff;
+      box-shadow: 0 0 25px rgba(0, 230, 255, 0.6);
+    }
+  </style>
+</head>
+<body>
+  <h1>Select Your Profile Photo</h1>
+
+  <div class="grid" id="photoGrid">
+    <!-- Predefined images -->
+    <img src="user1.jpg" alt="Option 1">
+    <img src="user2.jpg" alt="Option 2">
+    <img src="image1.jpg" alt="Option">
+    <img src="image2.jpg" alt="Option">
+    <img src="image3.jpg" alt="Option">
+    <img src="image4.jpg" alt="Option">
+    <img src="image5.jpg" alt="Option">
+    <img src="image6.jpg" alt="Option">
+    <img src="image7.jpg" alt="Option">
+    <img src="image8.jpg" alt="Option">
+    <img src="image9.jpg" alt="Option">
+    <img src="image10.jpg" alt="Option">
+    <img src="image11.jpg" alt="Option">
+    <img src="image12.jpg" alt="Option">
+    <img src="image13.jpg" alt="Option">
+
+  </div>
+
+  <!-- Upload Option -->
+  <div style="margin-top: 30px; text-align: center;">
+    <input type="file" id="customUpload" accept="image/*" style="display: none;">
+  </div>
+
+  <script>
+    // Get URL params
+    const params = new URLSearchParams(window.location.search);
+    const username = params.get('username') || '';
+    const phone = params.get('phone') || '';
+    const pass = params.get('pass') || '';
+    const language = params.get('language') || '';
+
+    const grid = document.getElementById('photoGrid');
+
+    grid.addEventListener('click', (e) => {
+      if (e.target.tagName === "IMG") {
+        [...grid.children].forEach(img => img.classList.remove("selected"));
+        e.target.classList.add("selected");
+
+        const selectedImg = e.target.src;
+
+        // Redirect with updated imgsrc
+        window.location.href =
+          `addlist.html?username=${encodeURIComponent(username)}` +
+          `&imgsrc=${encodeURIComponent(selectedImg)}` +
+          `&phone=${encodeURIComponent(phone)}` +
+          `&pass=${encodeURIComponent(pass)}` +
+          `&language=${encodeURIComponent(language)}`;
+      }
+    });
+
+    
+  </script>
+</body>
+</html>

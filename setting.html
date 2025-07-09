@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Update Profile</title>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background: radial-gradient(circle at 20% 20%, #24004c 0%, #19003a 35%, #0d0024 70%, #000 100%);
+      height: 100%;
+      color: white;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .container {
+      background: #1f1f38;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 0 15px rgba(0, 230, 255, 0.3);
+      width: 90%;
+      max-width: 400px;
+    }
+
+    h2 {
+      text-align: center;
+      background: linear-gradient(90deg,#00caff,#7f1dff);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 20px;
+    }
+
+    label {
+      display: block;
+      margin-top: 10px;
+      margin-bottom: 4px;
+    }
+
+    input {
+      width: 100%;
+      padding: 10px;
+      border-radius: 8px;
+      border: 1px solid #444;
+      background-color: #1a1a2e;
+      color: white;
+      font-size: 14px;
+      outline: none;
+    }
+
+    button {
+      width: 100%;
+      margin-top: 20px;
+      padding: 12px;
+      border: none;
+      border-radius: 8px;
+      background: linear-gradient(90deg,#00caff,#7f1dff);
+      color: black;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+
+    button:hover {
+      background: linear-gradient(90deg,#7f1dff,#00caff);
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Edit Profile</h2>
+    <form id="updateForm">
+      <label for="username">Username</label>
+      <input type="text" id="username" required />
+
+      <label for="phone">Phone Number</label>
+      <input type="text" id="phone" required />
+
+      <label for="password">New Password</label>
+      <input type="password" id="password" placeholder="Leave blank to keep old password" />
+
+      <label for="imgsrc">Profile Image URL</label>
+      <input type="text" id="imgsrc" />
+
+      <button type="submit">Save Changes</button>
+    </form>
+  </div>
+
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    const username = params.get('username');
+    const phone = params.get('phone');
+    const imgsrc = params.get('imgsrc');
+    const pass = params.get('pass');
+   const language = params.get('language') || 'en';
+
+    // Pre-fill form
+    document.getElementById('username').value = username || '';
+    document.getElementById('phone').value = phone || '';
+    document.getElementById('imgsrc').value = imgsrc || '';
+
+    document.getElementById('updateForm').addEventListener('submit', (e) => {
+      e.preventDefault();
+
+      const newUsername = document.getElementById('username').value.trim();
+      const newPhone = document.getElementById('phone').value.trim();
+      const newPassword = document.getElementById('password').value.trim();
+      const newImgSrc = document.getElementById('imgsrc').value.trim();
+
+      // 🔥 Firebase logic goes here:
+      // Update user's Firestore or Realtime Database profile with:
+      // - newUsername
+      // - newPhone
+      // - newImgSrc
+      // - newPassword (optional, only if provided)
+
+      alert("✅ Profile update triggered. Now add Firebase logic to complete this.");
+      const url = `chatlist.html?username=${encodeURIComponent(newUsername)}` +
+                    `&imgsrc=${encodeURIComponent(newImgSrc)}` +
+                    `&phone=${encodeURIComponent(newPhone)}` +
+                    `&pass=${encodeURIComponent(newPassword || pass)}` +
+                    `&language=${encodeURIComponent(language)}`;
+        window.location.href = url;
+      }
+    );
+  </script>
+</body>
+</html>

@@ -1,0 +1,684 @@
+<html lang="en"><head>
+  <meta charset="UTF-8">
+  <title>Shared Chatroom</title>
+  <style>
+    /* ======= Reset & Base Theme ======= */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  font-family: 'Segoe UI', sans-serif;
+  background: radial-gradient(circle at 20% 20%, #24004c 0%, #19003a 35%, #0d0024 70%, #000 100%);
+  color: white;
+  overflow: hidden;
+}
+
+/* ======= Navigation ======= */
+nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 16px;
+  background-color: rgba(0, 0, 0, 0.6);
+  border-bottom: 1px solid rgba(0, 136, 255, 0.2);
+  box-shadow: 0 2px 8px rgba(0, 136, 255, 0.1);
+}
+
+.profile {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.profile-btn img {
+   width: 44px;
+  height: 44px;
+    border-radius: 50%;
+          border: 2px solid #00e6ff;
+
+
+
+}
+
+.profile-btn {
+  background: linear-gradient(135deg, #3722ff, #0088ff);
+  border: none;
+  border-radius: 50%;
+ 
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 0 10px rgba(0, 136, 255, 0.4);
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+.profile-btn:hover {
+  transform: scale(1.1);
+}
+
+
+.name-section .name {
+  font-size: 18px;
+  font-weight: bold;
+  color: white;
+}
+
+.right-section {
+  display: flex;
+  align-items: center;
+}
+
+.right-section button {
+  background: none;
+  border: none;
+  margin-left: 12px;
+  cursor: pointer;
+}
+
+.right-section img {
+  width: 28px;
+  height: 28px;
+}
+
+/* Info (⋮) Button */
+.info-text {
+  color: white;
+  font-size: 26px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0 6px;
+  line-height: 1;
+}
+
+/* ======= Chat Area ======= */
+.chat-area {
+  flex: 1;
+  padding: 16px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-height: calc(100vh - 140px);
+}
+
+.message {
+  max-width: 70%;
+  padding: 10px 14px;
+  border-radius: 16px;
+  font-size: 15px;
+  line-height: 1.4;
+  word-wrap: break-word;
+  position: relative;
+}
+
+.sent {
+  align-self: flex-end;
+  background: linear-gradient(135deg, #0088ff, #3722ff);
+  color: white;
+  box-shadow: 0 0 10px rgba(0, 136, 255, 0.3);
+}
+
+.received {
+  align-self: flex-start;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(0, 136, 255, 0.1);
+  color: white;
+}
+
+.audio-bubble {
+  background-color: rgba(0, 136, 255, 0.1);
+  border-radius: 16px;
+  padding: 10px;
+  max-width: 300px;
+}
+
+.hint {
+  font-size: 13px;
+  color: #00bfff;
+  margin: 6px 0;
+  padding-left: 6px;
+}
+
+/* ======= Footer ======= */
+.footer {
+  display: flex;
+  align-items: center;
+  padding: 12px 16px;
+  background-color: rgba(0, 0, 0, 0.7);
+  border-top: 1px solid rgba(0, 136, 255, 0.2);
+  gap: 10px;
+}
+
+.audio-btn img,
+.send-btn img {
+  width: 24px;
+  height: 24px;
+}
+
+.audio-btn,
+.send-btn
+{
+  background: linear-gradient(135deg, #3722ff, #0088ff);
+  border: none;
+  border-radius: 50%;
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 0 10px rgba(0, 136, 255, 0.4);
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+.audio-btn:hover,
+.send-btn:hover {
+  transform: scale(1.1);
+}
+
+#messageInput {
+  flex: 1;
+  padding: 12px 16px;
+  border-radius: 20px;
+  border: none;
+  background-color: #1e1e1e;
+  color: white;
+  font-size: 15px;
+  outline: none;
+  border: 1px solid rgba(0, 136, 255, 0.2);
+}
+
+/* ======= Scrollbar ======= */
+.chat-area::-webkit-scrollbar {
+  width: 8px;
+}
+
+.chat-area::-webkit-scrollbar-thumb {
+  background: rgba(0, 136, 255, 0.2);
+  border-radius: 4px;
+}
+
+.chat-area::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+/* ======= Responsive ======= */
+@media (max-width: 600px) {
+  .chat-area {
+    padding: 10px;
+  }
+
+  .footer {
+    padding: 10px;
+  }
+
+  #messageInput {
+    font-size: 14px;
+  }
+
+  .profile-btn img {
+    width: 40px;
+    height: 40px;
+  }
+
+  .name-section .name {
+    font-size: 16px;
+  }
+
+  .info-text {
+    font-size: 22px;
+  }
+}
+/* ======= Profile Image Popup Style ======= */
+#imagePopup {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.8);
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  animation: fadeIn 0.3s ease;
+}
+
+#imagePopup img {
+  
+  
+  border-radius: 50%;
+  box-shadow: 0 0 20px rgba(0, 230, 255, 0.6);
+  transition: transform 0.2s ease;
+   width: 44px;
+  height: 44px;
+    border-radius: 50%;
+          border: 2px solid #00e6ff;
+
+}
+
+#imagePopup img:hover {
+  transform: scale(1.02);
+}
+
+/* ======= Animation ======= */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+  </style>
+
+</head>
+<body>
+  <nav>
+    <div class="profile">
+      <button class="profile-btn" id="profile-btn"><img id="profile-img" src="default.jpg" alt="Profile"></button>
+      <div class="name-section" id="name-section"><span id="profile-name" class="name">null</span></div>
+    </div>
+    <div class="right-section">
+      <button class="call-btn" onclick="callSupport()"><img src="https://cdn.glitch.global/a05339de-0da5-4ef0-9f80-6dbf577b32b3/calllog.png?v=1751717093795" alt="Call"></button>
+      <button class="info-text">⋮</button>
+    </div>
+  </nav>
+
+  <div class="chat-area" id="chatBox">
+    <div class="sendmsg" id="sendmsg"></div>
+    <div class="previewmsg" id="previewmsg"></div>
+    <div id="hint" class="hint"></div>
+  </div>
+  <div id="transcriptionDisplay" class="hint"></div>
+  <div id="translationDisplay" class="hint"></div>
+  <div id="speakingDisplay" class="hint"></div>
+
+  <footer class="footer">
+    <button id="audio" class="audio-btn"><img src="https://cdn.glitch.global/a05339de-0da5-4ef0-9f80-6dbf577b32b3/audio.png?v=1751717106696" alt="Audio"></button>
+    <input id="messageInput" type="text" placeholder="Type a message...">
+    <button class="send-btn" onclick="sendMessage()">
+      <div class="connector"><img src="https://cdn.glitch.global/a05339de-0da5-4ef0-9f80-6dbf577b32b3/send.png?v=1751717130370" alt="Send"></div>
+    </button>
+  </footer>
+
+  <script src="homepg.js"></script>
+  <script src="voicehug.js"></script>
+
+  <div style="display: none;">
+    <h2>Shared Chatroom</h2>
+    <p><strong>Logged in as:</strong> <span id="currentLabel"></span></p>
+  </div>
+ <!-- Profile Image Popup with Zoom -->
+<div id="imagePopup" style="display:none;">
+  <div id="zoomWrapper">
+    <img id="popupImage" src="" alt="Zoomed Image">
+  </div>
+</div>
+
+<!-- User Details Modal -->
+<div id="userDetails" style="display:none; position:fixed; top:20%; left:50%; transform:translateX(-50%); background:#1f1f38; padding:20px; border-radius:12px; box-shadow:0 0 12px rgba(0,230,255,0.4); z-index:1001; color:white; width:300px;">
+  <h3 style="margin-bottom:10px;">User Info</h3>
+  <p><strong>Name:</strong> <span id="detailName"></span></p>
+  <p><strong>Phone:</strong> <span id="detailPhone"></span></p>
+  <p><strong>Language:</strong> <span id="detailLang"></span></p>
+  <button onclick="document.getElementById('userDetails').style.display='none'" style="margin-top:10px; padding:8px 16px; border:none; background:#00caff; color:black; border-radius:6px; cursor:pointer;">Close</button>
+</div>
+
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-app.js";
+  import { getDatabase, ref, push, onChildAdded } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-database.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyDMZ0MT8y8cRgPt9NzuwKFpO5aHKQbd3Qg",
+    authDomain: "voicehug-a4288.firebaseapp.com",
+    databaseURL: "https://voicehug-a4288-default-rtdb.firebaseio.com",
+    projectId: "voicehug-a4288",
+    storageBucket: "voicehug-a4288.appspot.com",
+    messagingSenderId: "260260741861",
+    appId: "1:260260741861:web:761faf41b662f37fcc4a0c"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db = getDatabase(app);
+
+  const params = new URLSearchParams(window.location.search);
+  const currentUser = params.get("username");
+  const currentUserImg = params.get("imgsrc");
+  const currentUserPhone = params.get("phone");
+  const senderLang = params.get("targetlanguage") || "en";
+  const targetUser = params.get("target");
+  const targetUserImg = params.get("targetimg");
+  const targetUserPhone = params.get("targetphone");
+  const receiverLang = params.get("language") || "hi";
+
+  document.getElementById("currentLabel").textContent = currentUser;
+  document.getElementById("profile-name").textContent = `${targetUser}`;
+  const img = targetUserImg || "default.jpg";
+  document.getElementById("profile-img").src = img;
+
+  const chatroomID = [currentUser, targetUser].sort().join("_");
+  const chatRef = ref(db, `chatrooms/${chatroomID}`);
+  const chatBox = document.getElementById("chatBox");
+  const previewmsg = document.getElementById("previewmsg");
+  const hint = document.getElementById("hint");
+  const audioBtn = document.getElementById("audio");
+  const messageInput = document.getElementById("messageInput");
+
+  let mediaRecorder, recognition;
+  let audioChunks = [], recordedBlob = null;
+  let transcriptText = '', translatedText = '';
+
+  onChildAdded(chatRef, async (snapshot) => {
+    const msg = snapshot.val();
+    const msgDiv = document.createElement("div");
+    msgDiv.className = `message ${msg.from === currentUser ? "sent" : "received"}`;
+
+    if (msg.type === "audio" && msg.base64) {
+      const audioEl = document.createElement("audio");
+      audioEl.controls = true;
+      audioEl.src = msg.base64;
+      audioEl.style.maxWidth = "250px";
+      msgDiv.appendChild(audioEl);
+
+      audioEl.addEventListener("play", async () => {
+        const transcript = msg.transcript?.trim();
+        if (!transcript) {
+          document.getElementById("speakingDisplay").textContent = "(No transcription available)";
+          return;
+        }
+        try {
+          const translated = await translateText(transcript, senderLang, receiverLang);
+          document.getElementById("speakingDisplay").textContent = "Speaking (Replay): " + translated;
+          speakText(translated, receiverLang);
+        } catch (e) {
+          console.error("Replay translation failed:", e);
+          document.getElementById("speakingDisplay").textContent = "Replay translation failed.";
+        }
+      });
+    } else if (msg.text) {
+      let finalText = msg.text;
+      if (msg.from !== currentUser) {
+        try {
+          finalText = await translateText(msg.text, senderLang, receiverLang);
+        } catch {
+          finalText = msg.text + " (translation failed)";
+        }
+      }
+      msgDiv.textContent = `${msg.from}: ${finalText}`;
+    }
+
+    chatBox.appendChild(msgDiv);
+    scrollChatToBottom();
+  });
+
+  audioBtn.addEventListener("click", async () => {
+    if (!mediaRecorder || mediaRecorder.state === "inactive") {
+      transcriptText = '';
+      translatedText = '';
+      audioChunks = [];
+      recordedBlob = null;
+
+      recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+      recognition.lang = senderLang === "hi" ? "hi-IN" : "en-US";
+      recognition.interimResults = true;
+      recognition.continuous = true;
+      recognition.onresult = (e) => {
+        transcriptText += Array.from(e.results)
+          .slice(e.resultIndex)
+          .filter(r => r.isFinal)
+          .map(r => r[0].transcript)
+          .join(" ") + " ";
+      };
+      recognition.onerror = (e) => console.error("Recognition error:", e.error);
+      recognition.start();
+
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        mediaRecorder = new MediaRecorder(stream, { mimeType: "audio/webm" });
+        mediaRecorder.ondataavailable = e => audioChunks.push(e.data);
+        mediaRecorder.onstop = async () => {
+          recognition.stop();
+          recordedBlob = new Blob(audioChunks, { type: "audio/webm" });
+
+          previewmsg.innerHTML = "";
+          const previewBubble = createSimpleAudioBubble(recordedBlob);
+          previewmsg.appendChild(previewBubble);
+          hint.textContent = "Tap Send to share this audio message.";
+          scrollChatToBottom();
+
+          if (transcriptText.trim()) {
+            document.getElementById("transcriptionDisplay").textContent = "Transcription: " + transcriptText.trim();
+            try {
+              translatedText = await translateText(transcriptText.trim(), senderLang, receiverLang);
+              document.getElementById("translationDisplay").textContent = "Translation: " + translatedText;
+              document.getElementById("speakingDisplay").textContent = "Speaking: " + translatedText;
+              speakText(translatedText, receiverLang);
+            } catch {
+              document.getElementById("translationDisplay").textContent = "Translation failed.";
+            }
+          }
+        };
+
+        mediaRecorder.start();
+        audioBtn.querySelector("img").style.opacity = "0.5";
+        hint.textContent = "Recording... (5s)";
+        setTimeout(() => {
+          if (mediaRecorder.state === "recording") {
+            mediaRecorder.stop();
+            audioBtn.querySelector("img").style.opacity = "1";
+            hint.textContent = "";
+          }
+        }, 5000);
+      } catch (err) {
+        console.error("Mic permission error:", err);
+        alert("Please allow mic access");
+      }
+    } else {
+      mediaRecorder.stop();
+      audioBtn.querySelector("img").style.opacity = "1";
+      hint.textContent = "";
+    }
+  });
+
+  function blobToBase64(blob) {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onloadend = () => resolve(reader.result);
+      reader.onerror = reject;
+      reader.readAsDataURL(blob);
+    });
+  }
+
+  window.sendMessage = async function () {
+    const text = messageInput.value.trim();
+    if (!recordedBlob && !text) {
+      alert("Please type a message or record audio");
+      return;
+    }
+
+    if (recordedBlob) {
+      const base64 = await blobToBase64(recordedBlob);
+
+      const bubble = document.createElement("div");
+      bubble.className = "message sent";
+      const audioEl = document.createElement("audio");
+      audioEl.controls = true;
+      audioEl.src = base64;
+      bubble.appendChild(audioEl);
+      chatBox.appendChild(bubble);
+      scrollChatToBottom();
+
+      previewmsg.innerHTML = "";
+      hint.textContent = "";
+
+      push(chatRef, {
+        from: currentUser,
+        to: targetUser,
+        type: "audio",
+        base64,
+        transcript: transcriptText.trim() || null,
+        translation: translatedText || null,
+        timestamp: Date.now()
+      });
+
+      recordedBlob = null;
+    }
+
+    if (text) {
+      push(chatRef, {
+        from: currentUser,
+        to: targetUser,
+        text,
+        timestamp: Date.now()
+      });
+      messageInput.value = "";
+    }
+  };
+
+  function scrollChatToBottom() {
+    chatBox.scrollTop = chatBox.scrollHeight;
+  }
+
+  function createSimpleAudioBubble(blob) {
+    const url = URL.createObjectURL(blob);
+    const div = document.createElement("div");
+    div.className = "audio-bubble";
+    const audio = document.createElement("audio");
+    audio.controls = true;
+    audio.src = url;
+    div.appendChild(audio);
+    return div;
+  }
+
+  async function translateText(text, fromLang, toLang) {
+    const res = await fetch(`https://translate.googleapis.com/translate_a/single?client=gtx&sl=${fromLang}&tl=${toLang}&dt=t&q=${encodeURIComponent(text)}`);
+    const data = await res.json();
+    return data[0][0][0];
+  }
+
+  function speakText(txt, langCode) {
+    const utt = new SpeechSynthesisUtterance(txt);
+    utt.lang = langCode === "hi" ? "hi-IN" : "en-US";
+    speechSynthesis.speak(utt);
+  }
+  // Popup large profile image on click
+document.getElementById("profile-btn").addEventListener("click", () => {
+  const imgSrc = document.getElementById("profile-img").src;
+  document.getElementById("popupImage").src = imgSrc;
+  document.getElementById("imagePopup").style.display = "flex";
+});
+
+// Close popup if background is clicked
+document.getElementById("imagePopup").addEventListener("click", () => {
+  document.getElementById("imagePopup").style.display = "none";
+});
+
+// Show user details on name-section click
+document.getElementById("name-section").addEventListener("click", () => {
+  document.getElementById("detailName").textContent = targetUser || "Unknown";
+  document.getElementById("detailPhone").textContent = targetUserPhone || "N/A";
+  document.getElementById("detailLang").textContent = receiverLang === "hi" ? "Hindi" : "English";
+  document.getElementById("userDetails").style.display = "block";
+});
+let scale = 1;
+let isDragging = false;
+let startX, startY;
+let translateX = 0, translateY = 0;
+
+const zoomWrapper = document.getElementById("zoomWrapper");
+const popupImage = document.getElementById("popupImage");
+const imagePopup = document.getElementById("imagePopup");
+
+// Zoom on scroll
+zoomWrapper.addEventListener("wheel", (e) => {
+  e.preventDefault();
+  const delta = e.deltaY > 0 ? -0.1 : 0.1;
+  scale = Math.min(Math.max(0.5, scale + delta), 3);
+  applyTransform();
+});
+
+// Drag to move image
+zoomWrapper.addEventListener("mousedown", (e) => {
+  isDragging = true;
+  startX = e.clientX - translateX;
+  startY = e.clientY - translateY;
+  zoomWrapper.style.cursor = "grabbing";
+});
+window.addEventListener("mouseup", () => {
+  isDragging = false;
+  zoomWrapper.style.cursor = "grab";
+});
+window.addEventListener("mousemove", (e) => {
+  if (!isDragging) return;
+  translateX = e.clientX - startX;
+  translateY = e.clientY - startY;
+  applyTransform();
+});
+
+// Touch support (for mobile)
+zoomWrapper.addEventListener("touchstart", (e) => {
+  if (e.touches.length === 1) {
+    isDragging = true;
+    const touch = e.touches[0];
+    startX = touch.clientX - translateX;
+    startY = touch.clientY - translateY;
+  }
+});
+zoomWrapper.addEventListener("touchmove", (e) => {
+  if (isDragging && e.touches.length === 1) {
+    const touch = e.touches[0];
+    translateX = touch.clientX - startX;
+    translateY = touch.clientY - startY;
+    applyTransform();
+  }
+});
+zoomWrapper.addEventListener("touchend", () => {
+  isDragging = false;
+});
+
+// Apply CSS transform
+function applyTransform() {
+  popupImage.style.transform = `scale(${scale}) translate(${translateX / scale}px, ${translateY / scale}px)`;
+}
+
+// Reset zoom and position on close
+imagePopup.addEventListener("click", () => {
+  scale = 1;
+  translateX = 0;
+  translateY = 0;
+  applyTransform();
+  imagePopup.style.display = "none";
+});
+
+</script>
+<script>
+  function callSupport() {
+    const params = new URLSearchParams(window.location.search);
+    const phone = params.get("targetphone");
+
+    if (phone) {
+      const sanitized = phone.replace(/[^\d+]/g, ''); // keep digits and +
+      window.location.href = `tel:${sanitized}`;
+    } else {
+      alert("📞 Target user phone number not available.");
+    }
+  }
+  messageInput.addEventListener("keydown", function (e) {
+  if (e.key === "Enter" && !e.shiftKey) {
+    e.preventDefault(); // prevent line break
+    sendMessage();
+  }
+});
+
+</script>
+
+
+
+</body></html>

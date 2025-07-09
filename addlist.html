@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>User List</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html, body {
+      font-family: 'Helvetica Neue', sans-serif;
+      background: radial-gradient(circle at 20% 20%, #24004c 0%, #19003a 35%, #0d0024 70%, #000 100%);
+      color: white;
+      width: 100%;
+      min-height: 100vh;
+    }
+
+    #userList {
+      width: 100%;
+      min-height: 100vh;
+      padding: 24px 16px;
+    }
+
+    .search-option {
+      margin-bottom: 16px;
+    }
+
+    #searchBox-text {
+      width: 100%;
+      padding: 14px 18px;
+      border-radius: 20px;
+      border: 1px solid rgba(0, 136, 255, 0.3);
+      font-size: 16px;
+      background-color: #1e1e1e;
+      color: white;
+      outline: none;
+      transition: border-color 0.3s ease, background-color 0.3s ease;
+    }
+
+    #searchBox-text:focus {
+      border-color: #0099e6;
+      background-color: #252525;
+    }
+
+    #userCards {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .user-card {
+      background: rgba(255, 255, 255, 0.05);
+      padding: 14px 18px;
+      border-radius: 14px;
+      box-shadow: 0 0 10px rgba(0, 230, 255, 0.15);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .user-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 0 18px rgba(0, 136, 255, 0.3);
+    }
+
+    .user-left {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .user-card img {
+      width: 52px;
+      height: 52px;
+      object-fit: cover;
+      border-radius: 50%;
+      border: 2px solid rgba(0, 136, 255, 0.3);
+    }
+
+    .username {
+      font-weight: bold;
+      font-size: 17px;
+      color: white;
+    }
+
+   .add-btn {
+  background: linear-gradient(135deg, #3722ff, #0088ff);
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 36px;
+  height: 36px;
+  font-size: 20px;
+  cursor: pointer;
+  box-shadow: 0 0 10px rgba(0, 136, 255, 0.5);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.add-btn:hover {
+  transform: scale(1.1);
+  box-shadow: 0 0 18px rgba(0, 136, 255, 0.7);
+}
+
+
+    @media (max-width: 600px) {
+      .user-card {
+        flex-direction: row;
+        padding: 12px;
+      }
+
+      .username {
+        font-size: 15px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div id="userList">
+    <div class="search-option">
+      <input id="searchBox-text" type="text" placeholder="Search to add user..." />
+    </div>
+    <div id="userCards"></div>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-app.js";
+    import { getDatabase, ref, set, onValue } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-database.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyDMZ0MT8y8cRgPt9NzuwKFpO5aHKQbd3Qg",
+      authDomain: "voicehug-a4288.firebaseapp.com",
+      databaseURL: "https://voicehug-a4288-default-rtdb.firebaseio.com",
+      projectId: "voicehug-a4288",
+      storageBucket: "voicehug-a4288.appspot.com",
+      messagingSenderId: "260260741861",
+      appId: "1:260260741861:web:761faf41b662f37fcc4a0c"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+    const userListRef = ref(db, 'users/');
+
+    const params = new URLSearchParams(window.location.search);
+    const username = params.get('username') || 'Guest';
+    const imgsrc = params.get('imgsrc') || 'default.jpg';
+    const pass = params.get('pass') || '';
+    const phone = params.get('phone') || '';
+    const language = params.get('language') || '';
+
+    let allUsers = [];
+
+    // Load users from Firebase
+    onValue(userListRef, (snapshot) => {
+      const users = snapshot.val() || {};
+      let exists = false;
+
+      for (let key in users) {
+        if (users[key].username === username) {
+          exists = true;
+          break;
+        }
+      }
+
+      if (!exists) {
+        const newUserRef = ref(db, 'users/' + phone);
+        set(newUserRef, { username, imgsrc, pass, phone, language });
+      }
+
+      // ✅ EXCLUDE current user from user list
+      allUsers = Object.values(users).filter(user => user.phone !== phone);
+      displayUsers(allUsers);
+    });
+
+    // Display user cards
+    function displayUsers(userArray) {
+      const userCardsDiv = document.getElementById('userCards');
+      userCardsDiv.innerHTML = "";
+
+      userArray.forEach(user => {
+        const div = document.createElement('div');
+        div.className = "user-card";
+        div.innerHTML = `
+          <div class="user-left">
+            <img src="${user.imgsrc}" />
+            <div class="username">${user.username}</div>
+          </div>
+          <button class="add-btn" title="Open" onclick="openUser('${user.username}', '${user.imgsrc}', '${user.phone}', '${user.language || 'en'}')">＋</button>
+        `;
+        userCardsDiv.appendChild(div);
+      });
+    }
+
+    // Search filter logic
+    document.getElementById("searchBox-text").addEventListener("input", function () {
+      const query = this.value.toLowerCase().trim();
+
+      if (query === "") {
+        displayUsers(allUsers); // ✅ use filtered list
+      } else {
+        const filtered = allUsers.filter(user =>
+          user.username.toLowerCase().includes(query)
+        );
+        displayUsers(filtered);
+      }
+    });
+
+    window.openUser = function (targetName, targetImg, targetPhone, targetLang) {
+      const url = `chatlist.html?username=${encodeURIComponent(username)}&imgsrc=${encodeURIComponent(imgsrc)}&phone=${encodeURIComponent(phone)}&pass=${encodeURIComponent(pass)}&language=${encodeURIComponent(language)}&target=${encodeURIComponent(targetName)}&targetimg=${encodeURIComponent(targetImg)}&targetphone=${encodeURIComponent(targetPhone)}&targetlanguage=${encodeURIComponent(targetLang)}`;
+      window.location.href = url;
+    };
+  </script>
+  </body>
+</html>
